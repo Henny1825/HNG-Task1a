@@ -1,0 +1,434 @@
+ *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:        #0d0e14;
+      --surface:    #13141d;
+      --card:       #1a1c28;
+      --border:     #2a2d3e;
+      --muted:      #50556e;
+      --text:       #d8daf0;
+      --soft:       #8b90b0;
+      --amber:      #f5a623;
+      --amber-dim:  #3d2a08;
+      --red:        #e85d5d;
+      --red-dim:    #2e1212;
+      --green:      #4ec994;
+      --green-dim:  #0d2a1e;
+      --blue:       #5b8ef0;
+      --blue-dim:   #0e1e3a;
+      --purple:     #a57ff5;
+      --glow:       rgba(91,142,240,0.12);
+      --transition: 0.2s ease;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      font-family: 'DM Mono', monospace;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(91,142,240,0.08) 0%, transparent 70%),
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 39px, rgba(255,255,255,0.015) 40px);
+    }
+
+    /* ── CARD ── */
+    article[data-testid="test-todo-card"] {
+      width: 100%;
+      max-width: 500px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 8px 40px rgba(0,0,0,0.6), 0 0 80px var(--glow);
+      animation: fadeUp 0.5s cubic-bezier(.22,.68,0,1.2) both;
+      /* Priority left border indicator */
+      border-left: 4px solid var(--blue);
+      transition: border-left-color var(--transition);
+    }
+
+    article[data-testid="test-todo-card"].priority-high  { border-left-color: var(--red); }
+    article[data-testid="test-todo-card"].priority-medium{ border-left-color: var(--amber); }
+    article[data-testid="test-todo-card"].priority-low   { border-left-color: var(--green); }
+    article[data-testid="test-todo-card"].is-overdue     { border-left-color: var(--red); }
+    article[data-testid="test-todo-card"].is-done        { border-left-color: var(--muted); opacity: 0.8; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .card-accent {
+      height: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--purple), var(--amber));
+    }
+
+    .card-body { padding: 1.5rem; }
+
+    /* ── PRIORITY INDICATOR DOT ── */
+    span[data-testid="test-todo-priority-indicator"] {
+      display: inline-block;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background var(--transition);
+    }
+    .priority-high  [data-testid="test-todo-priority-indicator"] { background: var(--red); box-shadow: 0 0 6px var(--red); }
+    .priority-medium[data-testid="test-todo-priority-indicator"] { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+    .priority-low   [data-testid="test-todo-priority-indicator"] { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+    /* ── HEADER ── */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+      margin-bottom: 0.875rem;
+    }
+
+    .checkbox-wrap { flex-shrink: 0; margin-top: 3px; position: relative; }
+
+    input[data-testid="test-todo-complete-toggle"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: all var(--transition);
+      display: block;
+    }
+    input[data-testid="test-todo-complete-toggle"]:hover { border-color: var(--blue); background: var(--blue-dim); }
+    input[data-testid="test-todo-complete-toggle"]:checked { background: var(--green); border-color: var(--green); }
+    input[data-testid="test-todo-complete-toggle"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 6px;
+      width: 5px; height: 9px;
+      border: 2px solid #0d2a1e;
+      border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+    input[data-testid="test-todo-complete-toggle"]:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    .card-title-block { flex: 1; min-width: 0; }
+
+    h2[data-testid="test-todo-title"] {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      word-break: break-word;
+      transition: all 0.25s;
+    }
+    .is-done h2[data-testid="test-todo-title"] { text-decoration: line-through; color: var(--muted); }
+
+    .title-meta { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.375rem; flex-wrap: wrap; }
+
+    /* ── STATUS BADGE + CONTROL ── */
+    span[data-testid="test-todo-status"] {
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 100px;
+      transition: all 0.25s;
+    }
+    .status-pending    { background: var(--surface); color: var(--soft); border: 1px solid var(--border); }
+    .status-inprogress { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(91,142,240,0.25); }
+    .status-done       { background: var(--green-dim); color: var(--green); border: 1px solid rgba(78,201,148,0.25); }
+
+    select[data-testid="test-todo-status-control"] {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      background: var(--surface);
+      color: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 6px;
+      cursor: pointer;
+      transition: all var(--transition);
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b90b0'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      padding-right: 20px;
+    }
+    select[data-testid="test-todo-status-control"]:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    /* ── DESCRIPTION + COLLAPSE ── */
+    .description-wrap { margin-bottom: 1rem; }
+
+    div[data-testid="test-todo-collapsible-section"] {
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(.4,0,.2,1);
+      max-height: 100px;
+    }
+    div[data-testid="test-todo-collapsible-section"].expanded { max-height: 500px; }
+
+    p[data-testid="test-todo-description"] {
+      font-size: 0.8rem;
+      color: var(--soft);
+      line-height: 1.65;
+      font-weight: 300;
+    }
+
+    button[data-testid="test-todo-expand-toggle"] {
+      margin-top: 0.4rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--blue);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      letter-spacing: 0.04em;
+      transition: opacity var(--transition);
+    }
+    button[data-testid="test-todo-expand-toggle"]:hover { opacity: 0.7; }
+    button[data-testid="test-todo-expand-toggle"]:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 3px; }
+
+    /* ── META GRID ── */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.625rem;
+      margin-bottom: 1rem;
+    }
+
+    .meta-cell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .meta-label {
+      font-size: 0.575rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    span[data-testid="test-todo-priority"] {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.775rem;
+      font-weight: 700;
+    }
+    .priority-high  span[data-testid="test-todo-priority"] { color: var(--red); }
+    .priority-medium span[data-testid="test-todo-priority"] { color: var(--amber); }
+    .priority-low   span[data-testid="test-todo-priority"] { color: var(--green); }
+
+    time[data-testid="test-todo-due-date"] {
+      font-size: 0.75rem;
+      color: var(--text);
+      font-weight: 400;
+      display: block;
+    }
+
+    .time-remaining-cell {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .time-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .is-overdue .time-dot { background: var(--red); }
+    .is-done    .time-dot { background: var(--green); animation: none; }
+
+    @keyframes pulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.5; transform:scale(0.7); }
+    }
+
+    time[data-testid="test-todo-time-remaining"] {
+      font-size: 0.75rem;
+      color: var(--blue);
+      font-weight: 500;
+    }
+    .is-overdue time[data-testid="test-todo-time-remaining"] { color: var(--red); }
+    .is-done    time[data-testid="test-todo-time-remaining"] { color: var(--green); }
+
+    /* overdue indicator badge */
+    span[data-testid="test-todo-overdue-indicator"] {
+      display: none;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid rgba(232,93,93,0.3);
+    }
+    .is-overdue span[data-testid="test-todo-overdue-indicator"] { display: inline-block; }
+
+    /* ── TAGS ── */
+    ul[data-testid="test-todo-tags"] {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.125rem;
+      padding: 0;
+    }
+    ul[data-testid="test-todo-tags"] li {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      padding: 3px 10px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      color: var(--soft);
+      background: var(--surface);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    ul[data-testid="test-todo-tags"] li:hover { border-color: var(--purple); color: var(--purple); }
+
+    /* ── ACTIONS ── */
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.18s;
+      text-transform: uppercase;
+    }
+    .btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .btn svg { width: 13px; height: 13px; stroke-width: 2; }
+
+    button[data-testid="test-todo-edit-button"] { background: var(--surface); color: var(--soft); }
+    button[data-testid="test-todo-edit-button"]:hover { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+
+    button[data-testid="test-todo-delete-button"] { background: var(--surface); color: var(--soft); }
+    button[data-testid="test-todo-delete-button"]:hover { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+    /* ── EDIT FORM ── */
+    div[data-testid="test-todo-edit-form"] {
+      display: none;
+      flex-direction: column;
+      gap: 0.875rem;
+      padding: 1.25rem;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      animation: slideDown 0.25s ease both;
+    }
+    div[data-testid="test-todo-edit-form"].active { display: flex; }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+
+    .form-group label {
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      transition: border-color var(--transition);
+      resize: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { outline: none; border-color: var(--blue); }
+
+    .form-group textarea { min-height: 80px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
+
+    .form-actions { display: flex; gap: 0.5rem; margin-top: 0.25rem; }
+
+    button[data-testid="test-todo-save-button"] {
+      flex: 1;
+      padding: 0.55rem;
+      border-radius: 8px;
+      border: none;
+      background: var(--blue);
+      color: #fff;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity var(--transition);
+    }
+    button[data-testid="test-todo-save-button"]:hover { opacity: 0.85; }
+    button[data-testid="test-todo-save-button"]:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    button[data-testid="test-todo-cancel-button"] {
+      flex: 1;
+      padding: 0.55rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--soft);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    button[data-testid="test-todo-cancel-button"]:hover { border-color: var(--red); color: var(--red); }
+    button[data-testid="test-todo-cancel-button"]:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      article[data-testid="test-todo-card"] { max-width: 100%; }
+      .card-body { padding: 1.125rem; }
+      .meta-grid { grid-template-columns: 1fr; }
+      .time-remaining-cell { grid-column: 1; }
+      .form-row { grid-template-columns: 1fr; }
+    }
